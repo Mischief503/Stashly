@@ -1,0 +1,2 @@
+# Stashly
+money tracking app
