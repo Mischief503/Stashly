@@ -374,6 +374,47 @@
   .status{ text-align:center; font-size:10.5px; color:var(--ink-faint); margin-top:22px; letter-spacing:.02em; }
 
   .log-list{ display:flex; flex-direction:column; gap:6px; }
+  /* ---- Tips tracker ---- */
+  .tip-seg{ display:grid; grid-template-columns:repeat(4,1fr); gap:4px; padding:4px; background:var(--surface); border:1px solid var(--border); border-radius:14px; margin-bottom:12px; }
+  .tip-seg button{ border:none; background:none; padding:9px 0; border-radius:10px; font-family:inherit; font-size:12.5px; font-weight:700; color:var(--ink-dim); cursor:pointer; }
+  .tip-seg button.on{ background:linear-gradient(135deg,var(--grad-a),var(--grad-b)); color:#0A0B0F; }
+  .tip-range{ font-size:12px; color:var(--ink-faint); margin:-4px 0 8px; text-align:center; }
+  .tip-tiles{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
+  .tip-tile{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:10px 8px; text-align:center; }
+  .tip-tile .v{ font-family:"SF Mono","Courier New",Consolas,monospace; font-size:14px; font-weight:800; color:var(--ink); }
+  .tip-tile .l{ font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-top:3px; }
+  .tip-big{ text-align:center; padding:4px 0 10px; }
+  .tip-big .v{ font-family:"SF Mono","Courier New",Consolas,monospace; font-size:30px; font-weight:800; color:var(--ink); }
+  .tip-big .l{ font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); }
+  .tip-bars{ display:flex; align-items:flex-end; gap:3px; height:110px; margin-top:6px; }
+  .tip-bar{ flex:1; display:flex; flex-direction:column-reverse; height:100%; justify-content:flex-start; border-radius:4px 4px 0 0; overflow:hidden; min-width:0; }
+  .tip-bar i{ display:block; width:100%; }
+  .tip-bar-lbls{ display:flex; gap:3px; margin-top:4px; }
+  .tip-bar-lbls span{ flex:1; text-align:center; font-size:9.5px; color:var(--ink-faint); min-width:0; overflow:visible; white-space:nowrap; }
+  .tip-job-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--border); }
+  .tip-dot{ width:10px; height:10px; border-radius:50%; flex:0 0 10px; }
+  .tip-job-name{ flex:1; font-size:13.5px; font-weight:600; color:var(--ink); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tip-job-amt{ font-family:"SF Mono","Courier New",Consolas,monospace; font-size:13.5px; font-weight:800; color:var(--ink); }
+  .tip-job-bar{ height:4px; border-radius:2px; background:var(--surface-hi, rgba(20,20,30,0.065)); margin:-4px 0 6px 20px; overflow:hidden; }
+  .tip-job-bar i{ display:block; height:100%; border-radius:2px; }
+  .tip-amt-cell{ font-size:9px; font-weight:700; color:var(--good); line-height:1; }
+  .cal-cell.sel .tip-amt-cell{ color:#0A0B0F; }
+  .tip-chips{ display:flex; flex-wrap:wrap; gap:8px; margin:10px 0; }
+  .tip-chip{ border:1px solid var(--border-hi); background:var(--surface); color:var(--ink-dim); border-radius:999px; padding:8px 14px; font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer; }
+  .tip-chip.on{ background:rgba(var(--grad-b-rgb),0.16); border-color:var(--grad-b); color:var(--ink); }
+  .tip-chip.new{ border-style:dashed; }
+  .tip-form{ display:grid; grid-template-columns:1fr; gap:8px; }
+  .tip-form input{ width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--border-hi); background:var(--surface); color:var(--ink); font-family:inherit; font-size:15px; box-sizing:border-box; }
+  .tip-add-btn{ padding:13px 0; border:none; border-radius:12px; font-family:inherit; font-size:14px; font-weight:800; color:#0A0B0F; cursor:pointer; background:linear-gradient(135deg,var(--grad-a),var(--grad-b)); }
+  .tip-hint{ font-size:11.5px; color:var(--danger); min-height:14px; }
+  .tip-entry{ display:flex; align-items:center; gap:10px; padding:10px 0; border-top:1px solid var(--border); }
+  .tip-entry .main{ flex:1; min-width:0; }
+  .tip-entry .job{ font-size:13.5px; font-weight:700; color:var(--ink); }
+  .tip-entry .note{ font-size:11.5px; color:var(--ink-faint); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tip-entry .amt{ font-family:"SF Mono","Courier New",Consolas,monospace; font-size:14px; font-weight:800; color:var(--good); }
+  .tip-x{ width:24px; height:24px; border-radius:50%; border:1px solid var(--border); background:none; color:var(--ink-faint); cursor:pointer; font-size:13px; }
+  .tip-manage-title{ font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:4px; }
+  .tip-sub{ font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-top:12px; }
   .cal-card{ background:var(--card-bg); border:1px solid var(--border); border-radius:18px; padding:14px; margin-bottom:12px; }
   .cal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
   .cal-title{ font-size:15px; font-weight:700; color:var(--ink); text-transform:capitalize; }
@@ -592,6 +633,10 @@
       <div id="logList" class="log-list"></div>
     </section>
 
+    <section class="screen" id="screen-tips" data-screen="tips" hidden>
+      <div id="tipsRoot"></div>
+    </section>
+
     <section class="screen" id="screen-settings" data-screen="settings" hidden>
       <div class="section-title" data-i18n="sec_appearance">Appearance</div>
       <div class="theme-grid" id="themeGrid"></div>
@@ -651,6 +696,10 @@
     <button class="nav-btn" data-nav="activity">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v4.8l3.2 2"/></svg>
       <span data-i18n="nav_activity">Activity</span>
+    </button>
+    <button class="nav-btn" data-nav="tips">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M14.6 9.3c-.5-.8-1.4-1.3-2.6-1.3-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1 2-2.5 2c-1.2 0-2.1-.5-2.6-1.3"/><path d="M12 6.4V8M12 16v1.6"/></svg>
+      <span data-i18n="nav_tips">Tips</span>
     </button>
     <button class="nav-btn" data-nav="settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><circle cx="9" cy="7" r="2"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="16" cy="12" r="2"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="11" cy="17" r="2"/></svg>
@@ -920,6 +969,31 @@
   const LANG_KEY = 'stash-lang';
 
   const I18N = {
+    nav_tips: { en:'Tips', es:'Propinas', fr:'Pourboires', de:'Trinkgeld', pt:'Gorjetas', it:'Mance', zh:'\u5c0f\u8d39', ja:'\u30c1\u30c3\u30d7', ko:'\ud301', hi:'\u091f\u093f\u092a\u094d\u0938' },
+    tips_cal: { en:'Calendar', es:'Calendario', fr:'Calendrier', de:'Kalender', pt:'Calend\u00e1rio', it:'Calendario', zh:'\u65e5\u5386', ja:'\u30ab\u30ec\u30f3\u30c0\u30fc', ko:'\ub2ec\ub825', hi:'\u0915\u0948\u0932\u0947\u0902\u0921\u0930' },
+    tips_week: { en:'Week', es:'Semana', fr:'Semaine', de:'Woche', pt:'Semana', it:'Settimana', zh:'\u5468', ja:'\u9031', ko:'\uc8fc', hi:'\u0938\u092a\u094d\u0924\u093e\u0939' },
+    tips_month: { en:'Month', es:'Mes', fr:'Mois', de:'Monat', pt:'M\u00eas', it:'Mese', zh:'\u6708', ja:'\u6708', ko:'\uc6d4', hi:'\u092e\u0939\u0940\u0928\u093e' },
+    tips_year: { en:'Year', es:'A\u00f1o', fr:'Ann\u00e9e', de:'Jahr', pt:'Ano', it:'Anno', zh:'\u5e74', ja:'\u5e74', ko:'\uc5f0', hi:'\u0935\u0930\u094d\u0937' },
+    tips_total: { en:'Total', es:'Total', fr:'Total', de:'Gesamt', pt:'Total', it:'Totale', zh:'\u5408\u8ba1', ja:'\u5408\u8a08', ko:'\ud569\uacc4', hi:'\u0915\u0941\u0932' },
+    tips_add: { en:'Add tip', es:'A\u00f1adir propina', fr:'Ajouter', de:'Hinzuf\u00fcgen', pt:'Adicionar', it:'Aggiungi', zh:'\u6dfb\u52a0', ja:'\u8ffd\u52a0', ko:'\ucd94\uac00', hi:'\u091c\u094b\u0921\u093c\u0947\u0902' },
+    tips_days: { en:'Days worked' },
+    tips_avg: { en:'Avg / day' },
+    tips_best: { en:'Best day' },
+    tips_by_job: { en:'By job' },
+    tips_none: { en:'No tips logged this day' },
+    tips_amount: { en:'Tip amount' },
+    tips_note: { en:'Note (optional)' },
+    tips_new_job: { en:'+ Job' },
+    tips_job_prompt: { en:'New job name' },
+    tips_job_ph: { en:'e.g. Restaurant, Side job' },
+    tips_pick_job: { en:'Pick or add a job first' },
+    tips_bad_amt: { en:'Enter a tip amount' },
+    tips_jobs: { en:'Your jobs' },
+    tips_del_confirm: { en:'Delete this tip entry?' },
+    tips_job_del: { en:'Remove this job from your list? Past tips stay in your history.' },
+    tips_rename: { en:'Rename job' },
+    tips_no_data: { en:'No tips in this period' },
+    tips_month_total: { en:'Month total' },
     nav_home:        { en:'Home', es:'Inicio', fr:'Accueil', de:'Start', pt:'In\u00edcio', it:'Home', zh:'\u9996\u9875', ja:'\u30db\u30fc\u30e0', ko:'\ud648', hi:'\u0939\u094b\u092e' },
     nav_assets:      { en:'Assets', es:'Activos', fr:'Actifs', de:'Verm\u00f6gen', pt:'Ativos', it:'Beni', zh:'\u8d44\u4ea7', ja:'\u8cc7\u7523', ko:'\uc790\uc0b0', hi:'\u0938\u0902\u092a\u0924\u094d\u0924\u093f' },
     nav_activity:    { en:'Activity', es:'Actividad', fr:'Activit\u00e9', de:'Aktivit\u00e4t', pt:'Atividade', it:'Attivit\u00e0', zh:'\u52a8\u6001', ja:'\u30a2\u30af\u30c6\u30a3\u30d3\u30c6\u30a3', ko:'\ud65c\ub3d9', hi:'\u0917\u0924\u093f\u0935\u093f\u0927\u093f' },
@@ -1083,6 +1157,7 @@
     cryptoPricesUpdatedAt: null,
     metalPrices: {},
     metalPricesUpdatedAt: null,
+    tips: { jobs: [], entries: [] },
   };
   state.activePersonId = state.people[0].id;
   state.activePlaceId = state.people[0].places[0].id;
@@ -1719,6 +1794,7 @@
     renderLog();
     renderCrypto();
     renderMetals();
+    renderTips();
   }
 
   function saveState(){
@@ -1774,6 +1850,7 @@
     if (!state.cryptoPricesUpdatedAt) state.cryptoPricesUpdatedAt = null;
     if (!state.metalPrices) state.metalPrices = {};
     if (!state.metalPricesUpdatedAt) state.metalPricesUpdatedAt = null;
+    ensureTips();
     state.people.forEach(p => {
       if (!p.crypto) p.crypto = [];
       if (!p.metals) p.metals = [];
@@ -1869,6 +1946,7 @@
         state = parsed;
         if (!state.cryptoPrices) state.cryptoPrices = {};
         if (!state.metalPrices) state.metalPrices = {};
+        ensureTips();
         state.people.forEach(p => {
           if (!p.crypto) p.crypto = [];
           if (!p.metals) p.metals = [];
@@ -2207,6 +2285,200 @@
   document.getElementById('promptOk').addEventListener('click', submitPrompt);
   promptInput.addEventListener('keydown', (e) => { if (e.key === 'Enter'){ e.preventDefault(); submitPrompt(); } });
 
+
+  /* ---- Tip tracker ---- */
+  function ensureTips(){
+    if (!state.tips || typeof state.tips !== 'object') state.tips = {};
+    if (!Array.isArray(state.tips.jobs)) state.tips.jobs = [];
+    if (!Array.isArray(state.tips.entries)) state.tips.entries = [];
+  }
+  const TIP_COLORS = ['#8B6CFF','#1FA971','#F0A030','#E0574F','#3BA7D8','#D95FB0','#6C7A89','#9AC23C'];
+  const tipState = { mode:'cal', anchor:new Date(), sel:null, job:null };
+  function tEsc(x){ return String(x == null ? '' : x).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function pad2(n){ return String(n).padStart(2,'0'); }
+  function dKey(d){ return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
+  function keyToDate(k){ const [y,m,d] = k.split('-').map(Number); return new Date(y, m-1, d); }
+  function jobLabel(e){ const j = state.tips.jobs.find(x => x.id === e.jobId); return j ? j.name : (e.jobName || '?'); }
+  function jobKeyOf(e){ return e.jobId || e.jobName || '?'; }
+  function jobColor(key){
+    const i = state.tips.jobs.findIndex(j => j.id === key);
+    if (i >= 0) return TIP_COLORS[i % TIP_COLORS.length];
+    let h = 0; for (const c of String(key)) h = (h*31 + c.charCodeAt(0)) % 997;
+    return TIP_COLORS[h % TIP_COLORS.length];
+  }
+  function jobNameByKey(key, entries){
+    const j = state.tips.jobs.find(x => x.id === key);
+    if (j) return j.name;
+    const e = entries.find(x => jobKeyOf(x) === key);
+    return e ? jobLabel(e) : key;
+  }
+  function tipRange(){
+    const a = tipState.anchor, mode = tipState.mode;
+    if (mode === 'week'){
+      const s0 = new Date(a.getFullYear(), a.getMonth(), a.getDate() - a.getDay());
+      const e0 = new Date(s0.getFullYear(), s0.getMonth(), s0.getDate() + 6);
+      return { start:s0, end:e0 };
+    }
+    if (mode === 'year') return { start:new Date(a.getFullYear(),0,1), end:new Date(a.getFullYear(),11,31) };
+    return { start:new Date(a.getFullYear(), a.getMonth(), 1), end:new Date(a.getFullYear(), a.getMonth()+1, 0) };
+  }
+  function tipTitle(r){
+    const loc = currentLang, mode = tipState.mode;
+    if (mode === 'year') return String(r.start.getFullYear());
+    if (mode === 'week') return r.start.toLocaleDateString(loc,{month:'short',day:'numeric'}) + ' – ' + r.end.toLocaleDateString(loc,{month:'short',day:'numeric',year:'numeric'});
+    return r.start.toLocaleDateString(loc,{month:'long',year:'numeric'});
+  }
+  function tipFmt(n){ return fmt(Math.round(n*100)/100); }
+  function tipShort(n){ return '$' + (n >= 1000 ? (Math.round(n/100)/10) + 'k' : Math.round(n)); }
+
+  function tipSummary(r){
+    const sk = dKey(r.start), ek = dKey(r.end);
+    const list = state.tips.entries.filter(e => e.date >= sk && e.date <= ek);
+    const byDay = {}, byJob = {};
+    let total = 0;
+    list.forEach(e => {
+      total += e.amount;
+      byDay[e.date] = (byDay[e.date] || 0) + e.amount;
+      const k = jobKeyOf(e); byJob[k] = (byJob[k] || 0) + e.amount;
+    });
+    const days = Object.keys(byDay);
+    let best = null;
+    days.forEach(d => { if (!best || byDay[d] > best.amt) best = { date:d, amt:byDay[d] }; });
+    return { list, total, byDay, byJob, daysWorked:days.length, best };
+  }
+
+  function tipBarsHTML(r, list){
+    const mode = tipState.mode;
+    let n, label, idx;
+    if (mode === 'week'){ n = 7; label = i => new Date(2024,0,7+i).toLocaleDateString(currentLang,{weekday:'narrow'}); idx = e => keyToDate(e.date).getDay(); }
+    else if (mode === 'year'){ n = 12; label = i => new Date(2024,i,1).toLocaleDateString(currentLang,{month:'narrow'}); idx = e => keyToDate(e.date).getMonth(); }
+    else { n = r.end.getDate(); label = i => ((i+1) === 1 || (i+1) % 5 === 0) ? String(i+1) : ''; idx = e => keyToDate(e.date).getDate() - 1; }
+    const buckets = Array.from({length:n}, () => ({ total:0, jobs:{} }));
+    list.forEach(e => { const b = buckets[idx(e)]; if (!b) return; b.total += e.amount; const k = jobKeyOf(e); b.jobs[k] = (b.jobs[k] || 0) + e.amount; });
+    const max = Math.max(1, ...buckets.map(b => b.total));
+    const bars = buckets.map(b => '<div class="tip-bar">' + Object.keys(b.jobs).map(k => '<i style="height:' + (b.jobs[k] / max * 100) + '%;background:' + jobColor(k) + '"></i>').join('') + '</div>').join('');
+    const lbls = buckets.map((b,i) => '<span>' + label(i) + '</span>').join('');
+    return '<div class="tip-bars">' + bars + '</div><div class="tip-bar-lbls">' + lbls + '</div>';
+  }
+
+  function tipByJobHTML(sum){
+    const keys = Object.keys(sum.byJob).sort((a,b) => sum.byJob[b] - sum.byJob[a]);
+    if (!keys.length) return '';
+    return '<div class="tip-sub">' + t('tips_by_job') + '</div>' + keys.map(k => {
+      const pct = sum.total ? sum.byJob[k] / sum.total * 100 : 0;
+      return '<div class="tip-job-row"><span class="tip-dot" style="background:' + jobColor(k) + '"></span><span class="tip-job-name">' + tEsc(jobNameByKey(k, sum.list)) + '</span><span class="tip-job-amt">' + tipFmt(sum.byJob[k]) + '</span></div>' +
+        '<div class="tip-job-bar"><i style="width:' + pct + '%;background:' + jobColor(k) + '"></i></div>';
+    }).join('');
+  }
+
+  function tipJobsManageHTML(){
+    if (!state.tips.jobs.length) return '';
+    return '<div class="cal-card"><div class="tip-manage-title">' + t('tips_jobs') + '</div>' + state.tips.jobs.map(j =>
+      '<div class="tip-job-row"><span class="tip-dot" style="background:' + jobColor(j.id) + '"></span><span class="tip-job-name">' + tEsc(j.name) + '</span>' +
+      '<button class="tip-x" data-act="rename-job" data-id="' + j.id + '">✎</button><button class="tip-x" data-act="del-job" data-id="' + j.id + '">&times;</button></div>').join('') + '</div>';
+  }
+
+  function renderTips(){
+    const root = document.getElementById('tipsRoot');
+    if (!root) return;
+    ensureTips();
+    const mode = tipState.mode;
+    const todayKey = dKey(new Date());
+    if (!tipState.sel) tipState.sel = todayKey;
+    const r = tipRange();
+    const sum = tipSummary(r);
+    const seg = '<div class="tip-seg">' + [['cal','tips_cal'],['week','tips_week'],['month','tips_month'],['year','tips_year']].map(m =>
+      '<button class="' + (mode === m[0] ? 'on' : '') + '" data-mode="' + m[0] + '">' + t(m[1]) + '</button>').join('') + '</div>';
+    const head = '<div class="cal-head"><button class="cal-nav" data-tnav="-1">‹</button><div class="cal-title">' + tipTitle(r) + '</div><button class="cal-nav" data-tnav="1">›</button></div>';
+    let html = seg;
+
+    if (mode === 'cal'){
+      const loc = currentLang;
+      let heads = '';
+      for (let i = 0; i < 7; i++) heads += '<div class="cal-dow">' + new Date(2024,0,7+i).toLocaleDateString(loc,{weekday:'narrow'}) + '</div>';
+      let cells = '';
+      for (let i = 0; i < r.start.getDay(); i++) cells += '<div class="cal-cell empty"></div>';
+      for (let d = 1; d <= r.end.getDate(); d++){
+        const k = r.start.getFullYear() + '-' + pad2(r.start.getMonth()+1) + '-' + pad2(d);
+        const amt = sum.byDay[k];
+        cells += '<div class="cal-cell' + (k === tipState.sel ? ' sel' : '') + (k === todayKey ? ' today' : '') + '" data-tday="' + k + '"><span>' + d + '</span>' + (amt ? '<span class="tip-amt-cell">' + tipShort(amt) + '</span>' : '') + '</div>';
+      }
+      html += '<div class="cal-card">' + head + '<div class="tip-range">' + t('tips_month_total') + ': <b>' + tipFmt(sum.total) + '</b></div><div class="cal-grid">' + heads + cells + '</div></div>';
+
+      const sel = tipState.sel;
+      const dayList = state.tips.entries.filter(e => e.date === sel);
+      const dayTotal = dayList.reduce((a,e) => a + e.amount, 0);
+      const selTitle = keyToDate(sel).toLocaleDateString(loc,{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+      let day = '<div class="cal-day-title">' + selTitle + (dayTotal ? ' · <span style="color:var(--good)">' + tipFmt(dayTotal) + '</span>' : '') + '</div>';
+      day += dayList.length ? dayList.map(e =>
+        '<div class="tip-entry"><span class="tip-dot" style="background:' + jobColor(jobKeyOf(e)) + '"></span><div class="main"><div class="job">' + tEsc(jobLabel(e)) + '</div>' + (e.note ? '<div class="note">' + tEsc(e.note) + '</div>' : '') + '</div><div class="amt">' + tipFmt(e.amount) + '</div><button class="tip-x" data-act="del-entry" data-id="' + e.id + '">&times;</button></div>').join('')
+        : '<div class="log-empty">' + t('tips_none') + '</div>';
+      if (!state.tips.jobs.find(j => j.id === tipState.job)) tipState.job = state.tips.jobs.length ? state.tips.jobs[0].id : null;
+      day += '<div class="tip-chips">' + state.tips.jobs.map(j => '<button class="tip-chip' + (j.id === tipState.job ? ' on' : '') + '" data-act="pick-job" data-id="' + j.id + '">' + tEsc(j.name) + '</button>').join('') +
+        '<button class="tip-chip new" data-act="new-job">' + t('tips_new_job') + '</button></div>' +
+        '<div class="tip-form"><input id="tipAmount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="' + tEsc(t('tips_amount')) + '"><input id="tipNote" type="text" maxlength="80" placeholder="' + tEsc(t('tips_note')) + '">' +
+        '<div class="tip-hint" id="tipHint"></div><button class="tip-add-btn" data-act="add-entry">' + t('tips_add') + '</button></div>';
+      html += '<div class="cal-card">' + day + '</div>' + tipJobsManageHTML();
+    } else {
+      html += '<div class="cal-card">' + head +
+        '<div class="tip-big"><div class="v">' + tipFmt(sum.total) + '</div><div class="l">' + t('tips_total') + '</div></div>' +
+        '<div class="tip-tiles"><div class="tip-tile"><div class="v">' + sum.daysWorked + '</div><div class="l">' + t('tips_days') + '</div></div>' +
+        '<div class="tip-tile"><div class="v">' + (sum.daysWorked ? tipFmt(sum.total / sum.daysWorked) : '$0.00') + '</div><div class="l">' + t('tips_avg') + '</div></div>' +
+        '<div class="tip-tile"><div class="v">' + (sum.best ? tipFmt(sum.best.amt) : '—') + '</div><div class="l">' + t('tips_best') + '</div></div></div>' +
+        (sum.list.length ? tipBarsHTML(r, sum.list) + tipByJobHTML(sum) : '<div class="log-empty">' + t('tips_no_data') + '</div>') + '</div>' + tipJobsManageHTML();
+    }
+    root.innerHTML = html;
+  }
+
+  (function wireTips(){
+    const root = document.getElementById('tipsRoot');
+    root.addEventListener('click', (e) => {
+      const modeBtn = e.target.closest('[data-mode]');
+      if (modeBtn){ tipState.mode = modeBtn.dataset.mode; renderTips(); return; }
+      const nav = e.target.closest('[data-tnav]');
+      if (nav){
+        const dir = Number(nav.dataset.tnav), a = tipState.anchor, mode = tipState.mode;
+        if (mode === 'week') tipState.anchor = new Date(a.getFullYear(), a.getMonth(), a.getDate() + 7*dir);
+        else if (mode === 'year') tipState.anchor = new Date(a.getFullYear() + dir, a.getMonth(), 1);
+        else tipState.anchor = new Date(a.getFullYear(), a.getMonth() + dir, 1);
+        renderTips(); return;
+      }
+      const cell = e.target.closest('[data-tday]');
+      if (cell){ tipState.sel = cell.dataset.tday; renderTips(); return; }
+      const btn = e.target.closest('[data-act]');
+      if (!btn) return;
+      const act = btn.dataset.act, id = btn.dataset.id;
+      if (act === 'pick-job'){
+        tipState.job = id;
+        root.querySelectorAll('[data-act="pick-job"]').forEach(b => b.classList.toggle('on', b.dataset.id === id));
+        const h = document.getElementById('tipHint'); if (h) h.textContent = '';
+      } else if (act === 'new-job'){
+        openPrompt(t('tips_job_prompt'), t('tips_job_ph'), (name) => {
+          name = (name || '').trim(); if (!name) return;
+          const existing = state.tips.jobs.find(j => j.name.toLowerCase() === name.toLowerCase());
+          if (existing){ tipState.job = existing.id; }
+          else { const job = { id: makeId(), name }; state.tips.jobs.push(job); tipState.job = job.id; saveState(); }
+          renderTips();
+        });
+      } else if (act === 'add-entry'){
+        const hint = document.getElementById('tipHint');
+        const job = state.tips.jobs.find(j => j.id === tipState.job);
+        const amt = parseFloat(document.getElementById('tipAmount').value);
+        if (!job){ hint.textContent = t('tips_pick_job'); return; }
+        if (isNaN(amt) || amt <= 0){ hint.textContent = t('tips_bad_amt'); return; }
+        state.tips.entries.push({ id: makeId(), date: tipState.sel, jobId: job.id, jobName: job.name, amount: Math.round(amt*100)/100, note: document.getElementById('tipNote').value.trim() });
+        saveState(); renderTips();
+      } else if (act === 'del-entry'){
+        openConfirm(t('tips_del_confirm'), () => { state.tips.entries = state.tips.entries.filter(x => x.id !== id); saveState(); renderTips(); });
+      } else if (act === 'rename-job'){
+        const job = state.tips.jobs.find(j => j.id === id);
+        if (job) openPrompt(t('tips_rename'), t('tips_job_ph'), (name) => { name = (name || '').trim(); if (!name) return; job.name = name; saveState(); renderTips(); }, job.name);
+      } else if (act === 'del-job'){
+        openConfirm(t('tips_job_del'), () => { state.tips.jobs = state.tips.jobs.filter(j => j.id !== id); saveState(); renderTips(); });
+      }
+    });
+  })();
+
   /* ---- Bottom nav / screens ---- */
   const navBtns = document.querySelectorAll('.nav-btn');
   const screens = document.querySelectorAll('.screen');
@@ -2215,6 +2487,7 @@
     navBtns.forEach(b => b.classList.toggle('active', b.dataset.nav === name));
     if (name === 'activity') renderLog();
     if (name === 'assets'){ renderCrypto(); renderMetals(); }
+    if (name === 'tips') renderTips();
     window.scrollTo(0, 0);
   }
   navBtns.forEach(btn => {
