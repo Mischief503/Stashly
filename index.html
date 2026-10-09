@@ -68,7 +68,7 @@
   .nav-btn{
     display:flex; flex-direction:column; align-items:center; gap:3px;
     background:none; border:none; cursor:pointer; font-family:inherit;
-    color:var(--ink-faint); padding:4px 14px; border-radius:12px;
+    color:var(--ink-faint); padding:4px 8px; border-radius:12px;
     transition:color .15s ease;
   }
   .nav-btn svg{ width:22px; height:22px; }
@@ -415,6 +415,23 @@
   .tip-x{ width:24px; height:24px; border-radius:50%; border:1px solid var(--border); background:none; color:var(--ink-faint); cursor:pointer; font-size:13px; }
   .tip-manage-title{ font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:4px; }
   .tip-sub{ font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-top:12px; }
+  /* ---- Debts ---- */
+  .debt-sum{ text-align:center; padding:2px 0 6px; }
+  .debt-sum .v{ font-family:"SF Mono","Courier New",Consolas,monospace; font-size:30px; font-weight:800; color:var(--danger); }
+  .debt-sum .l{ font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); }
+  .debt-prog{ height:8px; border-radius:4px; background:var(--surface-hi, rgba(20,20,30,0.065)); overflow:hidden; margin:10px 0 6px; }
+  .debt-prog i{ display:block; height:100%; border-radius:4px; background:linear-gradient(90deg,var(--good),#6ED6A8); }
+  .debt-meta{ font-size:11.5px; color:var(--ink-faint); line-height:1.5; }
+  .debt-card-head{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; }
+  .debt-name{ font-size:15px; font-weight:800; color:var(--ink); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .debt-bal{ font-family:"SF Mono","Courier New",Consolas,monospace; font-size:16px; font-weight:800; color:var(--danger); }
+  .debt-bal.paid{ color:var(--good); }
+  .debt-actions{ display:flex; gap:8px; margin-top:12px; }
+  .debt-actions button{ flex:1; padding:10px 0; border-radius:11px; border:1px solid var(--border-hi); background:var(--surface); color:var(--ink); font-family:inherit; font-size:12.5px; font-weight:700; cursor:pointer; }
+  .debt-actions button.primary{ border:none; color:#0A0B0F; background:linear-gradient(135deg,var(--grad-a),var(--grad-b)); }
+  .debt-actions button.icon{ flex:0 0 40px; }
+  .debt-hist{ margin-top:10px; }
+  .debt-hist .tip-entry .amt.add{ color:var(--danger); }
   .cal-card{ background:var(--card-bg); border:1px solid var(--border); border-radius:18px; padding:14px; margin-bottom:12px; }
   .cal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
   .cal-title{ font-size:15px; font-weight:700; color:var(--ink); text-transform:capitalize; }
@@ -637,6 +654,10 @@
       <div id="tipsRoot"></div>
     </section>
 
+    <section class="screen" id="screen-debts" data-screen="debts" hidden>
+      <div id="debtsRoot"></div>
+    </section>
+
     <section class="screen" id="screen-settings" data-screen="settings" hidden>
       <div class="section-title" data-i18n="sec_appearance">Appearance</div>
       <div class="theme-grid" id="themeGrid"></div>
@@ -701,6 +722,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M14.6 9.3c-.5-.8-1.4-1.3-2.6-1.3-1.5 0-2.5.8-2.5 2s1 1.7 2.5 2 2.5.8 2.5 2-1 2-2.5 2c-1.2 0-2.1-.5-2.6-1.3"/><path d="M12 6.4V8M12 16v1.6"/></svg>
       <span data-i18n="nav_tips">Tips</span>
     </button>
+    <button class="nav-btn" data-nav="debts">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2.5"/><path d="M3 10.5h18"/><path d="M7 15h3"/></svg>
+      <span data-i18n="nav_debts">Debts</span>
+    </button>
     <button class="nav-btn" data-nav="settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><circle cx="9" cy="7" r="2"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="16" cy="12" r="2"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="11" cy="17" r="2"/></svg>
       <span data-i18n="nav_settings">Settings</span>
@@ -713,6 +738,36 @@
       <div class="modal-actions">
         <button class="modal-cancel" id="confirmCancel" data-i18n="btn_cancel">Cancel</button>
         <button class="modal-confirm" id="confirmOk" data-i18n="btn_confirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="debtBackdrop">
+    <div class="modal">
+      <p id="debtModalTitle">Add a debt</p>
+      <input id="debtName" type="text" maxlength="40" placeholder="Name (e.g. Visa, Car loan)" style="margin-bottom:10px">
+      <input id="debtAmount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Amount owed now" style="margin-bottom:10px">
+      <input id="debtApr" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Interest rate % APR (optional)" style="margin-bottom:10px">
+      <input id="debtMin" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Monthly payment (optional)" style="margin-bottom:10px">
+      <input id="debtDue" type="number" inputmode="numeric" step="1" min="1" max="31" placeholder="Due day of month, 1-31 (optional)" style="margin-bottom:10px">
+      <div class="tip-hint" id="debtHint"></div>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="debtCancel" data-i18n="btn_cancel">Cancel</button>
+        <button class="modal-confirm primary" id="debtOk" data-i18n="btn_save">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="debtEntryBackdrop">
+    <div class="modal">
+      <p id="debtEntryTitle">Record payment</p>
+      <input id="debtEntryAmount" type="number" inputmode="decimal" step="0.01" min="0" placeholder="Amount" style="margin-bottom:10px">
+      <input id="debtEntryDate" type="date" style="margin-bottom:10px">
+      <input id="debtEntryNote" type="text" maxlength="60" placeholder="Note (optional)" style="margin-bottom:10px">
+      <div class="tip-hint" id="debtEntryHint"></div>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="debtEntryCancel" data-i18n="btn_cancel">Cancel</button>
+        <button class="modal-confirm primary" id="debtEntryOk" data-i18n="btn_save">Save</button>
       </div>
     </div>
   </div>
@@ -994,6 +1049,36 @@
     tips_rename: { en:'Rename job' },
     tips_no_data: { en:'No tips in this period' },
     tips_month_total: { en:'Month total' },
+    nav_debts: { en:'Debts', es:'Deudas', fr:'Dettes', de:'Schulden', pt:'D\u00edvidas', it:'Debiti', zh:'\u503a\u52a1', ja:'\u501f\u91d1', ko:'\ubd80\ucc44', hi:'\u0915\u0930\u094d\u091c' },
+    debt_total: { en:'Total owed' },
+    debt_paid_so_far: { en:'paid off so far' },
+    debt_monthly: { en:'Monthly payments' },
+    debt_next: { en:'Next due' },
+    debt_add: { en:'+ Add a debt' },
+    debt_pay: { en:'Pay' },
+    debt_charge: { en:'Add charge' },
+    debt_history: { en:'History' },
+    debt_empty: { en:'No debts yet. Tap below to add one.' },
+    debt_paid_off: { en:'Paid off' },
+    debt_title_new: { en:'Add a debt' },
+    debt_title_edit: { en:'Edit debt' },
+    debt_record_pay: { en:'Record payment' },
+    debt_record_charge: { en:'Add charge' },
+    debt_need_name: { en:'Enter a name' },
+    debt_need_amt: { en:'Enter the amount owed' },
+    debt_bad_amt: { en:'Enter an amount' },
+    debt_del_confirm: { en:'Delete this debt and its history?' },
+    debt_del_entry: { en:'Delete this entry?' },
+    debt_apr: { en:'APR' },
+    debt_min: { en:'monthly' },
+    debt_due: { en:'due on the' },
+    debt_payoff: { en:'Payoff at this pace' },
+    debt_months: { en:'months' },
+    debt_no_hist: { en:'No payments recorded yet' },
+    debt_started: { en:'Starting balance' },
+    debt_in_days: { en:'in {n} days' },
+    debt_today: { en:'today' },
+    debt_tomorrow: { en:'tomorrow' },
     nav_home:        { en:'Home', es:'Inicio', fr:'Accueil', de:'Start', pt:'In\u00edcio', it:'Home', zh:'\u9996\u9875', ja:'\u30db\u30fc\u30e0', ko:'\ud648', hi:'\u0939\u094b\u092e' },
     nav_assets:      { en:'Assets', es:'Activos', fr:'Actifs', de:'Verm\u00f6gen', pt:'Ativos', it:'Beni', zh:'\u8d44\u4ea7', ja:'\u8cc7\u7523', ko:'\uc790\uc0b0', hi:'\u0938\u0902\u092a\u0924\u094d\u0924\u093f' },
     nav_activity:    { en:'Activity', es:'Actividad', fr:'Activit\u00e9', de:'Aktivit\u00e4t', pt:'Atividade', it:'Attivit\u00e0', zh:'\u52a8\u6001', ja:'\u30a2\u30af\u30c6\u30a3\u30d3\u30c6\u30a3', ko:'\ud65c\ub3d9', hi:'\u0917\u0924\u093f\u0935\u093f\u0927\u093f' },
@@ -1158,6 +1243,7 @@
     metalPrices: {},
     metalPricesUpdatedAt: null,
     tips: { jobs: [], entries: [] },
+    debts: [],
   };
   state.activePersonId = state.people[0].id;
   state.activePlaceId = state.people[0].places[0].id;
@@ -1795,6 +1881,7 @@
     renderCrypto();
     renderMetals();
     renderTips();
+    renderDebts();
   }
 
   function saveState(){
@@ -1850,7 +1937,7 @@
     if (!state.cryptoPricesUpdatedAt) state.cryptoPricesUpdatedAt = null;
     if (!state.metalPrices) state.metalPrices = {};
     if (!state.metalPricesUpdatedAt) state.metalPricesUpdatedAt = null;
-    ensureTips();
+    ensureTips(); ensureDebts();
     state.people.forEach(p => {
       if (!p.crypto) p.crypto = [];
       if (!p.metals) p.metals = [];
@@ -1946,7 +2033,7 @@
         state = parsed;
         if (!state.cryptoPrices) state.cryptoPrices = {};
         if (!state.metalPrices) state.metalPrices = {};
-        ensureTips();
+        ensureTips(); ensureDebts();
         state.people.forEach(p => {
           if (!p.crypto) p.crypto = [];
           if (!p.metals) p.metals = [];
@@ -2381,7 +2468,7 @@
   function renderTips(){
     const root = document.getElementById('tipsRoot');
     if (!root) return;
-    ensureTips();
+    ensureTips(); ensureDebts();
     const mode = tipState.mode;
     const todayKey = dKey(new Date());
     if (!tipState.sel) tipState.sel = todayKey;
@@ -2479,6 +2566,147 @@
     });
   })();
 
+
+  /* ---- Debts ---- */
+  function ensureDebts(){ if (!Array.isArray(state.debts)) state.debts = []; }
+  const debtOpen = {};
+  let debtEditId = null, debtEntryCtx = null;
+  function debtBalance(d){
+    return (d.entries || []).reduce((b,e) => b + (e.type === 'add' ? e.amount : -e.amount), d.original || 0);
+  }
+  function debtPaid(d){ return (d.entries || []).filter(e => e.type !== 'add').reduce((a,e) => a + e.amount, 0); }
+  function nextDueDate(day){
+    const now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    for (let k = 0; k < 2; k++){
+      const dim = new Date(today.getFullYear(), today.getMonth() + k + 1, 0).getDate();
+      const d = new Date(today.getFullYear(), today.getMonth() + k, Math.min(day, dim));
+      if (d >= today) return d;
+    }
+    return today;
+  }
+  function dueText(date){
+    const now = new Date(), today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diff = Math.round((date - today) / 86400000);
+    const when = diff === 0 ? t('debt_today') : (diff === 1 ? t('debt_tomorrow') : tf('debt_in_days', { n: diff }));
+    return date.toLocaleDateString(currentLang, { month:'short', day:'numeric' }) + ' (' + when + ')';
+  }
+  function payoffMonths(bal, apr, pay){
+    if (!(pay > 0) || bal <= 0) return null;
+    const r = (apr || 0) / 100 / 12;
+    if (r === 0) return Math.ceil(bal / pay);
+    if (pay <= r * bal) return null;
+    return Math.ceil(-Math.log(1 - r * bal / pay) / Math.log(1 + r));
+  }
+  function renderDebts(){
+    const root = document.getElementById('debtsRoot');
+    if (!root) return;
+    ensureDebts();
+    const debts = state.debts;
+    const active = debts.filter(d => debtBalance(d) > 0.005);
+    const owed = active.reduce((a,d) => a + debtBalance(d), 0);
+    const original = debts.reduce((a,d) => a + (d.original || 0) + (d.entries || []).filter(e => e.type === 'add').reduce((x,e) => x + e.amount, 0), 0);
+    const paid = debts.reduce((a,d) => a + debtPaid(d), 0);
+    const pct = original > 0 ? Math.min(100, paid / original * 100) : 0;
+    const monthly = active.reduce((a,d) => a + (d.minPayment || 0), 0);
+    let nextTxt = '';
+    const dues = active.filter(d => d.dueDay).map(d => ({ d, date: nextDueDate(d.dueDay) })).sort((a,b) => a.date - b.date);
+    if (dues.length) nextTxt = t('debt_next') + ': <b>' + tEsc(dues[0].d.name) + '</b> · ' + dueText(dues[0].date);
+
+    let html = '<div class="cal-card"><div class="debt-sum"><div class="v">' + fmt(owed) + '</div><div class="l">' + t('debt_total') + '</div></div>' +
+      (debts.length ? '<div class="debt-prog"><i style="width:' + pct + '%"></i></div><div class="debt-meta">' + fmt(paid) + ' ' + t('debt_paid_so_far') + ' (' + Math.round(pct) + '%)' +
+        (monthly ? '<br>' + t('debt_monthly') + ': <b>' + fmt(monthly) + '</b>' : '') + (nextTxt ? '<br>' + nextTxt : '') + '</div>' : '<div class="log-empty">' + t('debt_empty') + '</div>') +
+      '<div class="debt-actions"><button class="primary" data-dact="new">' + t('debt_add') + '</button></div></div>';
+
+    debts.forEach(d => {
+      const bal = debtBalance(d), isPaid = bal <= 0.005;
+      const total = (d.original || 0) + (d.entries || []).filter(e => e.type === 'add').reduce((x,e) => x + e.amount, 0);
+      const p = total > 0 ? Math.min(100, debtPaid(d) / total * 100) : 0;
+      const bits = [];
+      if (d.apr) bits.push(t('debt_apr') + ' ' + d.apr + '%');
+      if (d.minPayment) bits.push(fmt(d.minPayment) + ' ' + t('debt_min'));
+      if (d.dueDay) bits.push(t('debt_due') + ' ' + d.dueDay);
+      const pm = isPaid ? null : payoffMonths(bal, d.apr, d.minPayment);
+      html += '<div class="cal-card"><div class="debt-card-head"><div class="debt-name">' + tEsc(d.name) + '</div><div class="debt-bal' + (isPaid ? ' paid' : '') + '">' + (isPaid ? '✓ ' + t('debt_paid_off') : fmt(bal)) + '</div></div>' +
+        '<div class="debt-prog"><i style="width:' + p + '%"></i></div>' +
+        '<div class="debt-meta">' + (bits.length ? bits.join(' · ') : '') + (pm ? (bits.length ? '<br>' : '') + t('debt_payoff') + ': ~' + pm + ' ' + t('debt_months') : '') + '</div>' +
+        '<div class="debt-actions"><button class="primary" data-dact="pay" data-id="' + d.id + '">' + t('debt_pay') + '</button><button data-dact="charge" data-id="' + d.id + '">' + t('debt_charge') + '</button>' +
+        '<button class="icon" data-dact="hist" data-id="' + d.id + '">☰</button><button class="icon" data-dact="edit" data-id="' + d.id + '">✎</button><button class="icon" data-dact="del" data-id="' + d.id + '">&times;</button></div>';
+      if (debtOpen[d.id]){
+        const ents = (d.entries || []).slice().sort((a,b) => b.date.localeCompare(a.date) || 0);
+        html += '<div class="debt-hist">' + (ents.length ? ents.map(e =>
+          '<div class="tip-entry"><div class="main"><div class="job">' + keyToDate(e.date).toLocaleDateString(currentLang,{month:'short',day:'numeric',year:'numeric'}) + '</div>' + (e.note ? '<div class="note">' + tEsc(e.note) + '</div>' : '') + '</div>' +
+          '<div class="amt' + (e.type === 'add' ? ' add' : '') + '">' + (e.type === 'add' ? '+' : '−') + fmt(e.amount) + '</div><button class="tip-x" data-dact="del-entry" data-id="' + d.id + '" data-eid="' + e.id + '">&times;</button></div>').join('')
+          : '<div class="log-empty">' + t('debt_no_hist') + '</div>') +
+          '<div class="debt-meta" style="margin-top:6px">' + t('debt_started') + ': ' + fmt(d.original || 0) + '</div></div>';
+      }
+      html += '</div>';
+    });
+    root.innerHTML = html;
+  }
+
+  (function wireDebts(){
+    const $ = id => document.getElementById(id);
+    const dBackdrop = $('debtBackdrop'), eBackdrop = $('debtEntryBackdrop');
+    function openDebtModal(d){
+      debtEditId = d ? d.id : null;
+      $('debtModalTitle').textContent = t(d ? 'debt_title_edit' : 'debt_title_new');
+      $('debtName').value = d ? d.name : '';
+      $('debtAmount').value = d ? debtBalance(d) : '';
+      $('debtAmount').disabled = !!d;
+      $('debtApr').value = d && d.apr ? d.apr : '';
+      $('debtMin').value = d && d.minPayment ? d.minPayment : '';
+      $('debtDue').value = d && d.dueDay ? d.dueDay : '';
+      $('debtHint').textContent = '';
+      dBackdrop.classList.add('show');
+    }
+    $('debtCancel').addEventListener('click', () => dBackdrop.classList.remove('show'));
+    $('debtOk').addEventListener('click', () => {
+      const name = $('debtName').value.trim();
+      const amt = parseFloat($('debtAmount').value);
+      const apr = parseFloat($('debtApr').value), min = parseFloat($('debtMin').value), due = parseInt($('debtDue').value, 10);
+      if (!name){ $('debtHint').textContent = t('debt_need_name'); return; }
+      if (!debtEditId && (isNaN(amt) || amt <= 0)){ $('debtHint').textContent = t('debt_need_amt'); return; }
+      const extra = { apr: apr > 0 ? apr : 0, minPayment: min > 0 ? min : 0, dueDay: (due >= 1 && due <= 31) ? due : 0 };
+      if (debtEditId){
+        const d = state.debts.find(x => x.id === debtEditId);
+        if (d){ d.name = name; Object.assign(d, extra); }
+      } else {
+        state.debts.push(Object.assign({ id: makeId(), name, original: Math.round(amt*100)/100, entries: [] }, extra));
+      }
+      saveState(); dBackdrop.classList.remove('show'); renderDebts();
+    });
+    function openEntryModal(d, type){
+      debtEntryCtx = { id: d.id, type };
+      $('debtEntryTitle').textContent = t(type === 'add' ? 'debt_record_charge' : 'debt_record_pay') + ' — ' + d.name;
+      $('debtEntryAmount').value = (type === 'pay' && d.minPayment) ? d.minPayment : '';
+      $('debtEntryDate').value = dKey(new Date());
+      $('debtEntryNote').value = '';
+      $('debtEntryHint').textContent = '';
+      eBackdrop.classList.add('show');
+    }
+    $('debtEntryCancel').addEventListener('click', () => eBackdrop.classList.remove('show'));
+    $('debtEntryOk').addEventListener('click', () => {
+      const amt = parseFloat($('debtEntryAmount').value);
+      if (isNaN(amt) || amt <= 0){ $('debtEntryHint').textContent = t('debt_bad_amt'); return; }
+      const d = state.debts.find(x => x.id === debtEntryCtx.id); if (!d) return;
+      if (!d.entries) d.entries = [];
+      d.entries.push({ id: makeId(), type: debtEntryCtx.type, amount: Math.round(amt*100)/100, date: $('debtEntryDate').value || dKey(new Date()), note: $('debtEntryNote').value.trim() });
+      debtOpen[d.id] = true;
+      saveState(); eBackdrop.classList.remove('show'); renderDebts();
+    });
+    $('debtsRoot').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-dact]'); if (!b) return;
+      const act = b.dataset.dact, d = state.debts.find(x => x.id === b.dataset.id);
+      if (act === 'new') openDebtModal(null);
+      else if (act === 'edit' && d) openDebtModal(d);
+      else if (act === 'pay' && d) openEntryModal(d, 'pay');
+      else if (act === 'charge' && d) openEntryModal(d, 'add');
+      else if (act === 'hist' && d){ debtOpen[d.id] = !debtOpen[d.id]; renderDebts(); }
+      else if (act === 'del' && d) openConfirm(t('debt_del_confirm'), () => { state.debts = state.debts.filter(x => x.id !== d.id); saveState(); renderDebts(); });
+      else if (act === 'del-entry' && d) openConfirm(t('debt_del_entry'), () => { d.entries = d.entries.filter(x => x.id !== b.dataset.eid); saveState(); renderDebts(); });
+    });
+  })();
+
   /* ---- Bottom nav / screens ---- */
   const navBtns = document.querySelectorAll('.nav-btn');
   const screens = document.querySelectorAll('.screen');
@@ -2488,6 +2716,7 @@
     if (name === 'activity') renderLog();
     if (name === 'assets'){ renderCrypto(); renderMetals(); }
     if (name === 'tips') renderTips();
+    if (name === 'debts') renderDebts();
     window.scrollTo(0, 0);
   }
   navBtns.forEach(btn => {
