@@ -2,7 +2,7 @@
 // and works offline. Everything else (crypto/metal prices) is fetched
 // live over the network and isn't cached here.
 
-const CACHE_NAME = 'stashly-shell-v1';
+const CACHE_NAME = 'stashly-shell-v2';
 const APP_SHELL = [
   './index.html',
   './manifest.json',
@@ -38,7 +38,19 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // App shell: cache-first, falling back to network.
+  // Pages: network-first so updates show up right away; fall back to cache offline.
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).then((response) => {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        return response;
+      }).catch(() => caches.match(event.request).then((c) => c || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  // Other app shell files: cache-first, falling back to network.
   event.respondWith(
     caches.match(event.request).then((cached) => {
       return (

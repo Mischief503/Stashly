@@ -374,6 +374,25 @@
   .status{ text-align:center; font-size:10.5px; color:var(--ink-faint); margin-top:22px; letter-spacing:.02em; }
 
   .log-list{ display:flex; flex-direction:column; gap:6px; }
+  .cal-card{ background:var(--card-bg); border:1px solid var(--border); border-radius:18px; padding:14px; margin-bottom:12px; }
+  .cal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .cal-title{ font-size:15px; font-weight:700; color:var(--ink); text-transform:capitalize; }
+  .cal-nav{ width:34px; height:34px; border-radius:50%; border:1px solid var(--border); background:var(--surface); color:var(--ink); font-size:20px; line-height:1; cursor:pointer; }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .cal-dow{ text-align:center; font-size:10.5px; color:var(--ink-faint); padding-bottom:4px; font-weight:700; }
+  .cal-cell{ aspect-ratio:1; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; font-size:13px; color:var(--ink); cursor:pointer; border:1px solid transparent; }
+  .cal-cell.empty{ cursor:default; }
+  .cal-cell.today{ border-color:var(--border-hi); font-weight:800; }
+  .cal-cell.sel{ background:linear-gradient(135deg,var(--grad-a),var(--grad-b)); color:#0A0B0F; font-weight:800; }
+  .cal-dot{ width:5px; height:5px; border-radius:50%; }
+  .cal-dot.add{ background:var(--good); } .cal-dot.sub{ background:var(--danger); } .cal-dot.neutral{ background:var(--ink-faint); }
+  .cal-cell.sel .cal-dot{ background:#0A0B0F; }
+  .cal-day-title{ font-size:13px; font-weight:700; color:var(--ink-dim); margin-bottom:8px; }
+  .cal-row{ display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-top:1px solid var(--border); }
+  .cal-qty{ font-family:"SF Mono","Courier New",Consolas,monospace; font-size:15px; font-weight:800; }
+  .cal-qty.pos, .cal-total.pos{ color:var(--good); } .cal-qty.neg, .cal-total.neg{ color:var(--danger); }
+  .cal-note{ font-size:12px; color:var(--ink-faint); padding:8px 0; border-top:1px solid var(--border); }
+  .cal-total{ text-align:right; font-size:13px; font-weight:800; padding-top:8px; border-top:1px solid var(--border); font-family:"SF Mono","Courier New",Consolas,monospace; }
   .log-empty{ font-size:12px; color:var(--ink-faint); text-align:center; padding:14px 0 4px; }
   .log-row{
     display:flex; align-items:center; justify-content:space-between; background:var(--surface);
@@ -465,6 +484,17 @@
     background:linear-gradient(135deg,#E8C874,#B8A050);
   }
   .metal-opt[data-code="XAG"] .metal-badge-mini{ background:linear-gradient(135deg,#D9DEE4,#9AA3AC); }
+  .metal-opt[data-code="XPT"] .metal-badge-mini{ background:linear-gradient(135deg,#E6EAF2,#8E9BB5); }
+  .metal-opt[data-code="XPD"] .metal-badge-mini{ background:linear-gradient(135deg,#EDE3D3,#B49A80); }
+  .metal-opt[data-code="HG"] .metal-badge-mini{ background:linear-gradient(135deg,#F0A67A,#B8643A); }
+  .metal-badge.copper{ background:linear-gradient(135deg,#F0A67A,#B8643A) !important; }
+  .metal-badge.platinum{ background:linear-gradient(135deg,#E6EAF2,#8E9BB5) !important; }
+  .metal-badge.palladium{ background:linear-gradient(135deg,#EDE3D3,#B49A80) !important; }
+  .coin-grid{ max-height:230px; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:2px; }
+  .coin-search{ width:100%; margin-bottom:10px; }
+  .coin-opt .coin-name{ font-size:9px; color:var(--ink-faint); max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .coin-opt.hidden, .coin-none.hidden{ display:none; }
+  .coin-none{ grid-column:1/-1; text-align:center; font-size:12px; color:var(--ink-faint); padding:14px 0; }
 </style>
 </head>
 <body>
@@ -652,6 +682,7 @@
   <div class="modal-backdrop" id="cryptoBackdrop">
     <div class="modal">
       <p data-i18n="modal_add_coin_title">Add a coin</p>
+      <input id="coinSearch" class="coin-search" type="search" placeholder="Search coins\u2026" autocomplete="off">
       <div class="coin-grid" id="coinGrid"></div>
       <input id="cryptoAmountInput" type="number" inputmode="decimal" step="any" min="0" placeholder="Amount you hold (e.g. 0.15)" data-i18n-placeholder="ph_amount">
       <div class="modal-actions">
@@ -663,7 +694,7 @@
 
   <div class="modal-backdrop" id="metalBackdrop">
     <div class="modal">
-      <p data-i18n="modal_add_metal_title">Add gold or silver</p>
+      <p data-i18n="modal_add_metal_title">Add a metal</p>
       <div class="metal-opt-grid" id="metalOptGrid"></div>
       <input id="metalGramsInput" type="number" inputmode="decimal" step="any" min="0" placeholder="Grams you hold (e.g. 5.2)" data-i18n-placeholder="ph_grams">
       <div class="modal-actions">
@@ -691,26 +722,99 @@
   ];
 
   const COIN_OPTIONS = [
-    { geckoId:'bitcoin',     symbol:'BTC',  short:'\u20bf' },
-    { geckoId:'ethereum',    symbol:'ETH',  short:'\u039e' },
-    { geckoId:'solana',      symbol:'SOL',  short:'S' },
-    { geckoId:'ripple',      symbol:'XRP',  short:'X' },
-    { geckoId:'dogecoin',    symbol:'DOGE', short:'D' },
-    { geckoId:'cardano',     symbol:'ADA',  short:'A' },
-    { geckoId:'litecoin',    symbol:'LTC',  short:'L' },
-    { geckoId:'binancecoin', symbol:'BNB',  short:'B' },
-    { geckoId:'tether',      symbol:'USDT', short:'T' },
-    { geckoId:'usd-coin',    symbol:'USDC', short:'U' },
-    { geckoId:'polkadot',    symbol:'DOT',  short:'\u2022' },
-    { geckoId:'chainlink',   symbol:'LINK', short:'L' },
+    { geckoId:'bitcoin', symbol:'BTC', name:'Bitcoin', short:'\u20bf' },
+    { geckoId:'ethereum', symbol:'ETH', name:'Ethereum', short:'\u039e' },
+    { geckoId:'tether', symbol:'USDT', name:'Tether', short:'USD' },
+    { geckoId:'ripple', symbol:'XRP', name:'XRP', short:'XRP' },
+    { geckoId:'binancecoin', symbol:'BNB', name:'BNB', short:'BNB' },
+    { geckoId:'solana', symbol:'SOL', name:'Solana', short:'SOL' },
+    { geckoId:'usd-coin', symbol:'USDC', name:'USD Coin', short:'USD' },
+    { geckoId:'dogecoin', symbol:'DOGE', name:'Dogecoin', short:'DOG' },
+    { geckoId:'tron', symbol:'TRX', name:'TRON', short:'TRX' },
+    { geckoId:'cardano', symbol:'ADA', name:'Cardano', short:'ADA' },
+    { geckoId:'avalanche-2', symbol:'AVAX', name:'Avalanche', short:'AVA' },
+    { geckoId:'shiba-inu', symbol:'SHIB', name:'Shiba Inu', short:'SHI' },
+    { geckoId:'chainlink', symbol:'LINK', name:'Chainlink', short:'LIN' },
+    { geckoId:'polkadot', symbol:'DOT', name:'Polkadot', short:'DOT' },
+    { geckoId:'bitcoin-cash', symbol:'BCH', name:'Bitcoin Cash', short:'BCH' },
+    { geckoId:'sui', symbol:'SUI', name:'Sui', short:'SUI' },
+    { geckoId:'stellar', symbol:'XLM', name:'Stellar', short:'XLM' },
+    { geckoId:'the-open-network', symbol:'TON', name:'Toncoin', short:'TON' },
+    { geckoId:'litecoin', symbol:'LTC', name:'Litecoin', short:'LTC' },
+    { geckoId:'hedera-hashgraph', symbol:'HBAR', name:'Hedera', short:'HBA' },
+    { geckoId:'monero', symbol:'XMR', name:'Monero', short:'XMR' },
+    { geckoId:'dai', symbol:'DAI', name:'Dai', short:'DAI' },
+    { geckoId:'uniswap', symbol:'UNI', name:'Uniswap', short:'UNI' },
+    { geckoId:'polygon-ecosystem-token', symbol:'POL', name:'Polygon', short:'POL' },
+    { geckoId:'pepe', symbol:'PEPE', name:'Pepe', short:'PEP' },
+    { geckoId:'near', symbol:'NEAR', name:'NEAR Protocol', short:'NEA' },
+    { geckoId:'aptos', symbol:'APT', name:'Aptos', short:'APT' },
+    { geckoId:'internet-computer', symbol:'ICP', name:'Internet Computer', short:'ICP' },
+    { geckoId:'ethereum-classic', symbol:'ETC', name:'Ethereum Classic', short:'ETC' },
+    { geckoId:'cosmos', symbol:'ATOM', name:'Cosmos', short:'ATO' },
+    { geckoId:'arbitrum', symbol:'ARB', name:'Arbitrum', short:'ARB' },
+    { geckoId:'optimism', symbol:'OP', name:'Optimism', short:'OP' },
+    { geckoId:'filecoin', symbol:'FIL', name:'Filecoin', short:'FIL' },
+    { geckoId:'algorand', symbol:'ALGO', name:'Algorand', short:'ALG' },
+    { geckoId:'vechain', symbol:'VET', name:'VeChain', short:'VET' },
+    { geckoId:'aave', symbol:'AAVE', name:'Aave', short:'AAV' },
+    { geckoId:'maker', symbol:'MKR', name:'Maker', short:'MKR' },
+    { geckoId:'the-graph', symbol:'GRT', name:'The Graph', short:'GRT' },
+    { geckoId:'render-token', symbol:'RENDER', name:'Render', short:'REN' },
+    { geckoId:'bonk', symbol:'BONK', name:'Bonk', short:'BON' },
+    { geckoId:'injective-protocol', symbol:'INJ', name:'Injective', short:'INJ' },
+    { geckoId:'tezos', symbol:'XTZ', name:'Tezos', short:'XTZ' },
+    { geckoId:'eos', symbol:'EOS', name:'EOS', short:'EOS' },
+    { geckoId:'the-sandbox', symbol:'SAND', name:'The Sandbox', short:'SAN' },
+    { geckoId:'decentraland', symbol:'MANA', name:'Decentraland', short:'MAN' },
+    { geckoId:'axie-infinity', symbol:'AXS', name:'Axie Infinity', short:'AXS' },
+    { geckoId:'theta-token', symbol:'THETA', name:'Theta', short:'THE' },
+    { geckoId:'flow', symbol:'FLOW', name:'Flow', short:'FLO' },
+    { geckoId:'kaspa', symbol:'KAS', name:'Kaspa', short:'KAS' },
+    { geckoId:'bittensor', symbol:'TAO', name:'Bittensor', short:'TAO' },
+    { geckoId:'ondo-finance', symbol:'ONDO', name:'Ondo', short:'OND' },
+    { geckoId:'official-trump', symbol:'TRUMP', name:'Official Trump', short:'TRU' },
+    { geckoId:'dogwifcoin', symbol:'WIF', name:'dogwifhat', short:'WIF' },
+    { geckoId:'floki', symbol:'FLOKI', name:'Floki', short:'FLO' },
+    { geckoId:'zcash', symbol:'ZEC', name:'Zcash', short:'ZEC' },
+    { geckoId:'dash', symbol:'DASH', name:'Dash', short:'DAS' },
+    { geckoId:'iota', symbol:'IOTA', name:'IOTA', short:'IOT' },
+    { geckoId:'neo', symbol:'NEO', name:'NEO', short:'NEO' },
+    { geckoId:'chiliz', symbol:'CHZ', name:'Chiliz', short:'CHZ' },
+    { geckoId:'curve-dao-token', symbol:'CRV', name:'Curve', short:'CRV' },
+    { geckoId:'lido-dao', symbol:'LDO', name:'Lido DAO', short:'LDO' },
+    { geckoId:'pax-gold', symbol:'PAXG', name:'PAX Gold', short:'PAX' },
+    { geckoId:'tether-gold', symbol:'XAUT', name:'Tether Gold', short:'XAU' },
+    { geckoId:'crypto-com-chain', symbol:'CRO', name:'Cronos', short:'CRO' },
+    { geckoId:'okb', symbol:'OKB', name:'OKB', short:'OKB' },
+    { geckoId:'leo-token', symbol:'LEO', name:'UNUS SED LEO', short:'LEO' },
+    { geckoId:'ethena-usde', symbol:'USDE', name:'Ethena USDe', short:'USD' },
+    { geckoId:'hyperliquid', symbol:'HYPE', name:'Hyperliquid', short:'HYP' },
+    { geckoId:'mantle', symbol:'MNT', name:'Mantle', short:'MNT' },
+    { geckoId:'pyth-network', symbol:'PYTH', name:'Pyth', short:'PYT' },
+    { geckoId:'jupiter-exchange-solana', symbol:'JUP', name:'Jupiter', short:'JUP' },
+    { geckoId:'celestia', symbol:'TIA', name:'Celestia', short:'TIA' },
+    { geckoId:'sei-network', symbol:'SEI', name:'Sei', short:'SEI' },
+    { geckoId:'blockstack', symbol:'STX', name:'Stacks', short:'STX' },
+    { geckoId:'gala', symbol:'GALA', name:'Gala', short:'GAL' },
+    { geckoId:'compound-governance-token', symbol:'COMP', name:'Compound', short:'COM' },
+    { geckoId:'pancakeswap-token', symbol:'CAKE', name:'PancakeSwap', short:'CAK' },
+    { geckoId:'thorchain', symbol:'RUNE', name:'THORChain', short:'RUN' },
+    { geckoId:'ethereum-name-service', symbol:'ENS', name:'ENS', short:'ENS' },
   ];
+  function coinHue(sym){ let h=0; for (const c of sym) h=(h*31+c.charCodeAt(0))%360; return h; }
+  function coinBg(sym){ const h=coinHue(sym); return 'linear-gradient(135deg,hsl('+h+',78%,72%),hsl('+((h+40)%360)+',70%,58%))'; }
   function coinInfo(geckoId){ return COIN_OPTIONS.find(c => c.geckoId === geckoId); }
 
   const METAL_OPTIONS = [
-    { code:'XAU', label:'Gold',   short:'Au' },
-    { code:'XAG', label:'Silver', short:'Ag' },
+    { code:'XAU', label:'Gold',      short:'Au', cls:'' },
+    { code:'XAG', label:'Silver',    short:'Ag', cls:'silver' },
+    { code:'XPT', label:'Platinum',  short:'Pt', cls:'platinum' },
+    { code:'XPD', label:'Palladium', short:'Pd', cls:'palladium' },
+    { code:'HG',  label:'Copper',    short:'Cu', cls:'copper', unitGrams:453.59237 },
   ];
   const GRAMS_PER_TROY_OZ = 31.1034768;
+  function gramsPerPriceUnit(code){ const m = METAL_OPTIONS.find(x => x.code === code); return (m && m.unitGrams) || GRAMS_PER_TROY_OZ; }
   function metalInfo(code){ return METAL_OPTIONS.find(m => m.code === code); }
 
   const LIGHT_BASE = {
@@ -798,7 +902,7 @@
   const DATA_KEY = 'stash-data-v2';
   const OLD_COUNTS_KEY = 'vault-counts';
   const OLD_LOG_KEY = 'vault-log';
-  const LOG_MAX = 300;
+  const LOG_MAX = 5000;
 
   /* ---- Language / i18n ---- */
   const LANGUAGES = [
@@ -855,6 +959,7 @@
     status_export_failed:{ en:'Export failed', es:'Error al exportar', fr:'\u00c9chec de l\u2019export', de:'Export fehlgeschlagen', pt:'Falha ao exportar', it:'Esportazione non riuscita', zh:'\u5bfc\u51fa\u5931\u8d25', ja:'\u30a8\u30af\u30b9\u30dd\u30fc\u30c8\u306b\u5931\u6557\u3057\u307e\u3057\u305f', ko:'\ub0b4\ubcf4\ub0b4\uae30 \uc2e4\ud328', hi:'\u090f\u0915\u094d\u0938\u092a\u094b\u0930\u094d\u091f \u0935\u093f\u092b\u0932' },
     status_invalid_backup:{ en:"That file isn't a valid backup", es:'Ese archivo no es una copia v\u00e1lida', fr:"Ce fichier n'est pas une sauvegarde valide", de:'Diese Datei ist keine g\u00fcltige Sicherung', pt:'Esse arquivo n\u00e3o \u00e9 um backup v\u00e1lido', it:'Quel file non \u00e8 un backup valido', zh:'\u8be5\u6587\u4ef6\u4e0d\u662f\u6709\u6548\u7684\u5907\u4efd', ja:'\u3053\u306e\u30d5\u30a1\u30a4\u30eb\u306f\u6709\u52b9\u306a\u30d0\u30c3\u30af\u30a2\u30c3\u30d7\u3067\u306f\u3042\u308a\u307e\u305b\u3093', ko:'\uc720\ud6a8\ud55c \ubc31\uc5c5 \ud30c\uc77c\uc774 \uc544\ub2d9\ub2c8\ub2e4', hi:'\u0935\u0939 \u092b\u093c\u093e\u0907\u0932 \u092e\u093e\u0928\u094d\u092f \u092c\u0948\u0915\u0905\u092a \u0928\u0939\u0940\u0902 \u0939\u0948' },
     status_imported: { en:'Backup imported', es:'Copia importada', fr:'Sauvegarde import\u00e9e', de:'Sicherung importiert', pt:'Backup importado', it:'Backup importato', zh:'\u5907\u4efd\u5df2\u5bfc\u5165', ja:'\u30d0\u30c3\u30af\u30a2\u30c3\u30d7\u3092\u30a4\u30f3\u30dd\u30fc\u30c8\u3057\u307e\u3057\u305f', ko:'\ubc31\uc5c5 \uac00\uc838\uc624\uae30 \uc644\ub8cc', hi:'\u092c\u0948\u0915\u0905\u092a \u0906\u092f\u093e\u0924 \u0939\u0941\u0906' },
+    cal_none:        { en:'No activity on this day', es:'Sin actividad este d\u00eda', fr:'Aucune activit\u00e9 ce jour', de:'Keine Aktivit\u00e4t an diesem Tag', pt:'Sem atividade neste dia', it:'Nessuna attivit\u00e0 in questo giorno', zh:'\u8fd9\u4e00\u5929\u6ca1\u6709\u8bb0\u5f55', ja:'\u3053\u306e\u65e5\u306e\u8a18\u9332\u306f\u3042\u308a\u307e\u305b\u3093', ko:'\uc774\ub0a0 \uae30\ub85d\uc774 \uc5c6\uc2b5\ub2c8\ub2e4', hi:'\u0907\u0938 \u0926\u093f\u0928 \u0915\u094b\u0908 \u0917\u0924\u093f\u0935\u093f\u0927\u093f \u0928\u0939\u0940\u0902' },
     empty_activity:  { en:'No activity yet \u2014 tap a tile to get started', es:'A\u00fan no hay actividad: toca una tarjeta para empezar', fr:'Aucune activit\u00e9 pour l\u2019instant \u2014 touchez une case pour commencer', de:'Noch keine Aktivit\u00e4t \u2014 tippe auf eine Kachel', pt:'Ainda sem atividade \u2014 toque em um cart\u00e3o para come\u00e7ar', it:'Nessuna attivit\u00e0 ancora \u2014 tocca un riquadro per iniziare', zh:'\u6682\u65e0\u52a8\u6001\u2014\u2014\u70b9\u51fb\u4e00\u4e2a\u5361\u7247\u5f00\u59cb', ja:'\u307e\u3060\u6d3b\u52d5\u306f\u3042\u308a\u307e\u305b\u3093\u3002\u30bf\u30a4\u30eb\u3092\u30bf\u30c3\u30d7\u3057\u3066\u59cb\u3081\u307e\u3057\u3087\u3046', ko:'\uc544\uc9c1 \ud65c\ub3d9\uc774 \uc5c6\uc2b5\ub2c8\ub2e4 \u2014 \ud0c0\uc77c\uc744 \ud0ed\ud558\uc5ec \uc2dc\uc791\ud558\uc138\uc694', hi:'\u0905\u092d\u0940 \u0924\u0915 \u0915\u094b\u0908 \u0917\u0924\u093f\u0935\u093f\u0927\u093f \u0928\u0939\u0940\u0902 \u2014 \u0936\u0941\u0930\u0942 \u0915\u0930\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u091f\u093e\u0907\u0932 \u0926\u092c\u093e\u090f\u0902' },
     msg_prices_not_loaded:{ en:'Prices not loaded yet', es:'Precios a\u00fan no cargados', fr:'Prix pas encore charg\u00e9s', de:'Preise noch nicht geladen', pt:'Pre\u00e7os ainda n\u00e3o carregados', it:'Prezzi non ancora caricati', zh:'\u4ef7\u683c\u5c1a\u672a\u52a0\u8f7d', ja:'\u4fa1\u683c\u306f\u307e\u3060\u8aad\u307f\u8fbc\u307e\u308c\u3066\u3044\u307e\u305b\u3093', ko:'\uac00\uaca9\uc774 \uc544\uc9c1 \ub85c\ub4dc\ub418\uc9c0 \uc54a\uc558\uc2b5\ub2c8\ub2e4', hi:'\u0915\u0940\u092e\u0924\u0947\u0902 \u0905\u092d\u0940 \u0932\u094b\u0921 \u0928\u0939\u0940\u0902 \u0939\u0941\u0908\u0902' },
     msg_tap_refresh: { en:'Tap Refresh to load live prices', es:'Toca Actualizar para cargar precios en vivo', fr:'Touchez Actualiser pour charger les prix en direct', de:'Tippe auf Aktualisieren f\u00fcr Live-Preise', pt:'Toque em Atualizar para carregar pre\u00e7os ao vivo', it:'Tocca Aggiorna per caricare i prezzi in tempo reale', zh:'\u70b9\u51fb\u5237\u65b0\u4ee5\u52a0\u8f7d\u5b9e\u65f6\u4ef7\u683c', ja:'\u66f4\u65b0\u3092\u30bf\u30c3\u30d7\u3057\u3066\u30e9\u30a4\u30d6\u4fa1\u683c\u3092\u8aad\u307f\u8fbc\u3080', ko:'\uc0c8\ub85c\uace0\uce68\uc744 \ud0ed\ud558\uc5ec \uc2e4\uc2dc\uac04 \uac00\uaca9 \ubd88\ub7ec\uc624\uae30', hi:'\u0932\u093e\u0907\u0935 \u0915\u0940\u092e\u0924\u0947\u0902 \u0932\u0947\u0928\u0947 \u0915\u0947 \u0932\u093f\u090f \u0930\u093f\u092b\u094d\u0930\u0947\u0936 \u0926\u092c\u093e\u090f\u0902' },
@@ -878,7 +983,7 @@
     ph_place_name:   { en:'e.g. Piggy Bank', es:'p. ej. Alcanc\u00eda', fr:'p. ex. Tirelire', de:'z. B. Sparschwein', pt:'ex.: Cofrinho', it:'es. Salvadanaio', zh:'\u4f8b\u5982\uff1a\u5b58\u94b1\u7f50', ja:'\u4f8b\uff1a\u8caf\u91d1\u7bb1', ko:'\uc608: \uc800\uae08\ud1b5', hi:'\u091c\u0948\u0938\u0947 \u0917\u0941\u0932\u094d\u0932\u0915' },
     modal_add_coin_title:{ en:'Add a coin', es:'A\u00f1adir moneda', fr:'Ajouter une crypto', de:'M\u00fcnze hinzuf\u00fcgen', pt:'Adicionar moeda', it:'Aggiungi crypto', zh:'\u6dfb\u52a0\u52a0\u5bc6\u8d27\u5e01', ja:'\u30b3\u30a4\u30f3\u3092\u8ffd\u52a0', ko:'\ucf54\uc778 \ucd94\uac00', hi:'\u0915\u094d\u0930\u093f\u092a\u094d\u091f\u094b \u091c\u094b\u095c\u0947\u0902' },
     ph_amount:       { en:'Amount you hold (e.g. 0.15)', es:'Cantidad que posees (p. ej. 0.15)', fr:'Montant d\u00e9tenu (p. ex. 0,15)', de:'Gehaltener Betrag (z. B. 0,15)', pt:'Quantidade que voc\u00ea possui (ex.: 0,15)', it:'Quantit\u00e0 posseduta (es. 0,15)', zh:'\u6301\u6709\u6570\u91cf\uff08\u4f8b\u5982 0.15\uff09', ja:'\u4fdd\u6709\u91cf\uff08\u4f8b\uff1a0.15\uff09', ko:'\ubcf4\uc720 \uc218\ub7c9 (\uc608: 0.15)', hi:'\u0906\u092a\u0915\u0947 \u092a\u093e\u0938 \u0915\u093f\u0924\u0928\u0940 \u092e\u093e\u0924\u094d\u0930\u093e \u0939\u0948 (\u091c\u0948\u0938\u0947 0.15)' },
-    modal_add_metal_title:{ en:'Add gold or silver', es:'A\u00f1adir oro o plata', fr:'Ajouter or ou argent', de:'Gold oder Silber hinzuf\u00fcgen', pt:'Adicionar ouro ou prata', it:'Aggiungi oro o argento', zh:'\u6dfb\u52a0\u9ec4\u91d1\u6216\u767d\u94f6', ja:'\u91d1\u307e\u305f\u306f\u9280\u3092\u8ffd\u52a0', ko:'\uae08 \ub610\ub294 \uc740 \ucd94\uac00', hi:'\u0938\u094b\u0928\u093e \u092f\u093e \u091a\u093e\u0902\u0926\u0940 \u091c\u094b\u095c\u0947\u0902' },
+    modal_add_metal_title:{ en:'Add a metal', es:'A\u00f1adir metal', fr:'Ajouter un m\u00e9tal', de:'Metall hinzuf\u00fcgen', pt:'Adicionar metal', it:'Aggiungi metallo', zh:'\u6dfb\u52a0\u8d35\u91d1\u5c5e', ja:'\u91d1\u5c5e\u3092\u8ffd\u52a0', ko:'\uae08\uc18d \ucd94\uac00', hi:'\u0927\u093e\u0924\u0941 \u091c\u094b\u095c\u0947\u0902' },
     ph_grams:        { en:'Grams you hold (e.g. 5.2)', es:'Gramos que posees (p. ej. 5.2)', fr:'Grammes d\u00e9tenus (p. ex. 5,2)', de:'Gehaltene Gramm (z. B. 5,2)', pt:'Gramas que voc\u00ea possui (ex.: 5,2)', it:'Grammi posseduti (es. 5,2)', zh:'\u6301\u6709\u514b\u6570\uff08\u4f8b\u5982 5.2\uff09', ja:'\u4fdd\u6709\u30b0\u30e9\u30e0\u6570\uff08\u4f8b\uff1a5.2\uff09', ko:'\ubcf4\uc720 \uadf8\ub7a8 (\uc608: 5.2)', hi:'\u0906\u092a\u0915\u0947 \u092a\u093e\u0938 \u0915\u093f\u0924\u0928\u0947 \u0917\u094d\u0930\u093e\u092e \u0939\u0948\u0902 (\u091c\u0948\u0938\u0947 5.2)' },
     log_all_reset:   { en:'All counts reset', es:'Todos los conteos reiniciados', fr:'Tous les comptes r\u00e9initialis\u00e9s', de:'Alle Z\u00e4hler zur\u00fcckgesetzt', pt:'Todas as contagens reiniciadas', it:'Tutti i conteggi azzerati', zh:'\u6240\u6709\u6570\u91cf\u5df2\u91cd\u7f6e', ja:'\u3059\u3079\u3066\u306e\u6570\u3092\u30ea\u30bb\u30c3\u30c8\u3057\u307e\u3057\u305f', ko:'\ubaa8\ub4e0 \uc218\ub7c9 \ucd08\uae30\ud654\ub428', hi:'\u0938\u092d\u0940 \u0917\u093f\u0928\u0924\u093f\u092f\u093e\u0902 \u0930\u0940\u0938\u0947\u091f \u0939\u0941\u0908\u0902' },
     log_set_to:      { en:'{label} set to {value}', es:'{label} establecido en {value}', fr:'{label} d\u00e9fini \u00e0 {value}', de:'{label} auf {value} gesetzt', pt:'{label} definido para {value}', it:'{label} impostato su {value}', zh:'{label} \u5df2\u8bbe\u4e3a {value}', ja:'{label}\u3092{value}\u306b\u8a2d\u5b9a', ko:'{label}\uc744(\ub97c) {value}(\uc73c)\ub85c \uc124\uc815', hi:'{label} \u0915\u094b {value} \u092a\u0930 \u0938\u0947\u091f \u0915\u093f\u092f\u093e \u0917\u092f\u093e' },
@@ -1026,7 +1131,7 @@
   function metalValueFor(person){
     return (person.metals || []).reduce((s, h) => {
       const pricePerOz = state.metalPrices[h.code] || 0;
-      const pricePerGram = pricePerOz / GRAMS_PER_TROY_OZ;
+      const pricePerGram = pricePerOz / gramsPerPriceUnit(h.code);
       return s + (h.grams || 0) * pricePerGram;
     }, 0);
   }
@@ -1199,34 +1304,99 @@
     return d.toLocaleDateString('en-US', {month:'short', day:'numeric'}) + ' \u00b7 ' + time;
   }
 
+  const calState = { y:null, m:null, sel:null };
+  function dayKey(ts){
+    const d = new Date(ts);
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+  function logDelta(entry){
+    if (entry.id && typeof entry.delta === 'number') return entry.delta ? { id: entry.id, delta: entry.delta } : null;
+    if (entry.dir){
+      const d = DENOMS.find(x => entry.label === x.label + ' ' + t(x.tagKey));
+      if (d) return { id: d.id, delta: entry.dir };
+    }
+    return null;
+  }
+  function buildDayMap(log){
+    const map = {};
+    log.forEach(entry => {
+      const k = dayKey(entry.ts);
+      const day = map[k] || (map[k] = { items:{}, notes:[], net:0, n:0 });
+      day.n++;
+      const ld = logDelta(entry);
+      if (ld){
+        day.items[ld.id] = (day.items[ld.id] || 0) + ld.delta;
+        const d = DENOMS.find(x => x.id === ld.id);
+        if (d) day.net += d.value * ld.delta;
+      } else if (!(entry.id && entry.delta === 0)){
+        day.notes.push(entry.label);
+      }
+    });
+    return map;
+  }
   function renderLog(){
     const person = getActivePerson();
     const place = getActivePlace();
     const labelEl = document.getElementById('activityPlaceLabel');
     if (labelEl) labelEl.textContent = person.name + ' \u2014 ' + place.name;
-    const log = place.log || [];
-    if (!log.length){
-      logListEl.innerHTML = '<div class="log-empty">' + t('empty_activity') + '</div>';
+    const map = buildDayMap(place.log || []);
+    const now = new Date();
+    if (calState.y === null){ calState.y = now.getFullYear(); calState.m = now.getMonth(); calState.sel = dayKey(now.getTime()); }
+    const loc = currentLang;
+    const monthTitle = new Date(calState.y, calState.m, 1).toLocaleDateString(loc, { month:'long', year:'numeric' });
+    let heads = '';
+    for (let i = 0; i < 7; i++) heads += '<div class="cal-dow">' + new Date(2024, 0, 7 + i).toLocaleDateString(loc, { weekday:'narrow' }) + '</div>';
+    const first = new Date(calState.y, calState.m, 1).getDay();
+    const dim = new Date(calState.y, calState.m + 1, 0).getDate();
+    const todayKey = dayKey(now.getTime());
+    let cells = '';
+    for (let i = 0; i < first; i++) cells += '<div class="cal-cell empty"></div>';
+    for (let d = 1; d <= dim; d++){
+      const k = calState.y + '-' + String(calState.m+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+      const info = map[k];
+      const dot = info ? '<span class="cal-dot ' + (info.net > 0 ? 'add' : (info.net < 0 ? 'sub' : 'neutral')) + '"></span>' : '';
+      cells += '<div class="cal-cell' + (k === calState.sel ? ' sel' : '') + (k === todayKey ? ' today' : '') + '" data-day="' + k + '"><span>' + d + '</span>' + dot + '</div>';
+    }
+    const [sy, sm, sd] = calState.sel.split('-').map(Number);
+    const selTitle = new Date(sy, sm - 1, sd).toLocaleDateString(loc, { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+    const day = map[calState.sel];
+    let detail;
+    if (!day){
+      detail = '<div class="log-empty">' + t('cal_none') + '</div>';
+    } else {
+      const rows = DENOMS.filter(d => day.items[d.id]).map(d => {
+        const q = day.items[d.id];
+        return '<div class="cal-row"><div class="log-desc">' + d.label + ' ' + t(d.tagKey) + '</div>' +
+          '<div class="cal-qty ' + (q < 0 ? 'neg' : 'pos') + '">' + (q < 0 ? '\u2212' : '') + Math.abs(q) + '\u00d7</div></div>';
+      }).join('');
+      const notes = day.notes.map(n => '<div class="cal-note">' + n + '</div>').join('');
+      const total = day.net ? '<div class="cal-total ' + (day.net < 0 ? 'neg' : 'pos') + '">' + (day.net < 0 ? '\u2212' : '+') + fmt(Math.abs(day.net)) + '</div>' : '';
+      detail = rows + notes + total;
+    }
+    logListEl.innerHTML =
+      '<div class="cal-card">' +
+        '<div class="cal-head"><button class="cal-nav" data-cal="-1">\u2039</button><div class="cal-title">' + monthTitle + '</div><button class="cal-nav" data-cal="1">\u203a</button></div>' +
+        '<div class="cal-grid">' + heads + cells + '</div>' +
+      '</div>' +
+      '<div class="cal-card"><div class="cal-day-title">' + selTitle + '</div>' + detail + '</div>';
+  }
+  logListEl.addEventListener('click', (e) => {
+    const nav = e.target.closest('.cal-nav');
+    if (nav){
+      const m = calState.m + Number(nav.dataset.cal);
+      const d = new Date(calState.y, m, 1);
+      calState.y = d.getFullYear(); calState.m = d.getMonth();
+      renderLog();
       return;
     }
-    logListEl.innerHTML = log.slice(0, LOG_SHOW).map(entry => {
-      const dirClass = entry.dir > 0 ? 'add' : (entry.dir < 0 ? 'sub' : 'neutral');
-      const symbol = entry.dir > 0 ? '+' : (entry.dir < 0 ? '\u2212' : '\u2022');
-      return `
-        <div class="log-row">
-          <div class="log-left">
-            <div class="log-dir ${dirClass}">${symbol}</div>
-            <div class="log-desc">${entry.label}</div>
-          </div>
-          <div class="log-time">${timeLabel(entry.ts)}</div>
-        </div>`;
-    }).join('');
-  }
+    const cell = e.target.closest('.cal-cell[data-day]');
+    if (cell){ calState.sel = cell.dataset.day; renderLog(); }
+  });
 
-  function addLogEntry(label, dir){
+  function addLogEntry(label, dir, extra){
     const place = getActivePlace();
     if (!place.log) place.log = [];
-    place.log.unshift({ label, dir, ts: Date.now() });
+    place.log.unshift(Object.assign({ label, dir, ts: Date.now() }, extra || {}));
     if (place.log.length > LOG_MAX) place.log = place.log.slice(0, LOG_MAX);
     renderLog();
     saveState();
@@ -1257,9 +1427,9 @@
       return `
         <div class="crypto-row">
           <div class="crypto-row-left">
-            <div class="crypto-badge">${info.short}</div>
+            <div class="crypto-badge" style="background:${coinBg(info.symbol)}">${info.short}</div>
             <div>
-              <div class="crypto-sym">${info.symbol}</div>
+              <div class="crypto-sym">${info.symbol} <span style="font-weight:500;color:var(--ink-faint);font-size:11px">${info.name}</span></div>
               <span class="crypto-amt" contenteditable="true" inputmode="decimal" data-id="${h.id}">${h.amount}</span>
             </div>
           </div>
@@ -1298,11 +1468,13 @@
     });
   }
 
-  async function fetchPrices(){
+  async function fetchPrices(silent){
     const neededIds = [...new Set(state.people.flatMap(p => (p.crypto || []).map(h => h.geckoId)))];
     if (!neededIds.length){ renderCrypto(); return; }
-    cryptoRefreshBtn.classList.add('spinning');
-    cryptoRefreshBtn.textContent = '\u21bb Checking\u2026';
+    if (!silent){
+      cryptoRefreshBtn.classList.add('spinning');
+      cryptoRefreshBtn.textContent = '\u21bb Checking\u2026';
+    }
     try{
       const url = 'https://api.coingecko.com/api/v3/simple/price?ids=' + neededIds.join(',') + '&vs_currencies=usd';
       const res = await fetch(url);
@@ -1315,20 +1487,24 @@
       saveState();
       cryptoUpdatedEl.textContent = t('msg_prices_updated_now');
     }catch(e){
-      if (e instanceof TypeError){
-        cryptoUpdatedEl.textContent = t('msg_no_connection');
-      } else {
-        cryptoUpdatedEl.textContent = t('msg_price_check_failed') + ' ' + e.message;
+      if (!silent){
+        if (e instanceof TypeError){
+          cryptoUpdatedEl.textContent = t('msg_no_connection');
+        } else {
+          cryptoUpdatedEl.textContent = t('msg_price_check_failed') + ' ' + e.message;
+        }
       }
       console.error('Crypto price fetch failed:', e);
     }
-    cryptoRefreshBtn.classList.remove('spinning');
-    cryptoRefreshBtn.textContent = '\u21bb Refresh';
+    if (!silent){
+      cryptoRefreshBtn.classList.remove('spinning');
+      cryptoRefreshBtn.textContent = '\u21bb Refresh';
+    }
     renderCrypto();
     renderTabs();
   }
 
-  cryptoRefreshBtn.addEventListener('click', fetchPrices);
+  cryptoRefreshBtn.addEventListener('click', () => fetchPrices(false));
 
   let selectedCoin = null;
   const cryptoBackdrop = document.getElementById('cryptoBackdrop');
@@ -1336,9 +1512,22 @@
   const cryptoAmountInput = document.getElementById('cryptoAmountInput');
   coinGridEl.innerHTML = COIN_OPTIONS.map(c => `
     <div class="coin-opt" data-id="${c.geckoId}">
-      <div class="coin-badge-mini">${c.short}</div>
+      <div class="coin-badge-mini" style="background:${coinBg(c.symbol)}">${c.short}</div>
       <div>${c.symbol}</div>
-    </div>`).join('');
+      <div class="coin-name">${c.name}</div>
+    </div>`).join('') + '<div class="coin-none hidden" id="coinNone">No match</div>';
+  const coinSearchEl = document.getElementById('coinSearch');
+  coinSearchEl.addEventListener('input', () => {
+    const q = coinSearchEl.value.trim().toLowerCase();
+    let shown = 0;
+    coinGridEl.querySelectorAll('.coin-opt').forEach(el => {
+      const c = coinInfo(el.dataset.id);
+      const ok = !q || c.symbol.toLowerCase().includes(q) || c.name.toLowerCase().includes(q);
+      el.classList.toggle('hidden', !ok);
+      if (ok) shown++;
+    });
+    document.getElementById('coinNone').classList.toggle('hidden', shown > 0);
+  });
   coinGridEl.querySelectorAll('.coin-opt').forEach(el => {
     el.addEventListener('click', () => {
       coinGridEl.querySelectorAll('.coin-opt').forEach(o => o.classList.remove('selected'));
@@ -1349,6 +1538,8 @@
 
   document.getElementById('cryptoAddBtn').addEventListener('click', () => {
     selectedCoin = null;
+    coinSearchEl.value = ''; coinSearchEl.dispatchEvent(new Event('input'));
+    coinGridEl.scrollTop = 0;
     coinGridEl.querySelectorAll('.coin-opt').forEach(o => o.classList.remove('selected'));
     cryptoAmountInput.value = '';
     cryptoBackdrop.classList.add('show');
@@ -1393,9 +1584,9 @@
     metalListEl.innerHTML = person.metals.map(h => {
       const info = metalInfo(h.code);
       const pricePerOz = state.metalPrices[h.code];
-      const pricePerGram = pricePerOz != null ? pricePerOz / GRAMS_PER_TROY_OZ : null;
+      const pricePerGram = pricePerOz != null ? pricePerOz / gramsPerPriceUnit(h.code) : null;
       const value = (h.grams || 0) * (pricePerGram || 0);
-      const badgeClass = h.code === 'XAG' ? 'crypto-badge metal-badge silver' : 'crypto-badge metal-badge';
+      const badgeClass = ('crypto-badge metal-badge ' + (info.cls || '')).trim();
       return `
         <div class="crypto-row">
           <div class="crypto-row-left">
@@ -1440,36 +1631,45 @@
     });
   }
 
-  async function fetchMetalPrices(){
+  async function fetchMetalPrices(silent){
     const neededCodes = [...new Set(state.people.flatMap(p => (p.metals || []).map(h => h.code)))];
     if (!neededCodes.length){ renderMetals(); return; }
-    metalRefreshBtn.classList.add('spinning');
-    metalRefreshBtn.textContent = '\u21bb Checking\u2026';
+    if (!silent){
+      metalRefreshBtn.classList.add('spinning');
+      metalRefreshBtn.textContent = '\u21bb Checking\u2026';
+    }
     try{
-      const results = await Promise.all(neededCodes.map(code =>
+      const results = await Promise.allSettled(neededCodes.map(code =>
         fetch('https://api.gold-api.com/price/' + code).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + r.statusText); return r.json(); })
       ));
-      results.forEach((data, i) => {
-        if (data && typeof data.price === 'number') state.metalPrices[neededCodes[i]] = data.price;
+      let okCount = 0, firstErr = null;
+      results.forEach((res, i) => {
+        if (res.status === 'fulfilled' && res.value && typeof res.value.price === 'number'){ state.metalPrices[neededCodes[i]] = res.value.price; okCount++; }
+        else if (!firstErr && res.status === 'rejected') firstErr = res.reason;
       });
+      if (!okCount && firstErr) throw firstErr;
       state.metalPricesUpdatedAt = Date.now();
       saveState();
       metalUpdatedEl.textContent = t('msg_prices_updated_now');
     }catch(e){
-      if (e instanceof TypeError){
-        metalUpdatedEl.textContent = t('msg_no_connection');
-      } else {
-        metalUpdatedEl.textContent = t('msg_price_check_failed') + ' ' + e.message;
+      if (!silent){
+        if (e instanceof TypeError){
+          metalUpdatedEl.textContent = t('msg_no_connection');
+        } else {
+          metalUpdatedEl.textContent = t('msg_price_check_failed') + ' ' + e.message;
+        }
       }
       console.error('Metal price fetch failed:', e);
     }
-    metalRefreshBtn.classList.remove('spinning');
-    metalRefreshBtn.textContent = '\u21bb Refresh';
+    if (!silent){
+      metalRefreshBtn.classList.remove('spinning');
+      metalRefreshBtn.textContent = '\u21bb Refresh';
+    }
     renderMetals();
     renderTabs();
   }
 
-  metalRefreshBtn.addEventListener('click', fetchMetalPrices);
+  metalRefreshBtn.addEventListener('click', () => fetchMetalPrices(false));
 
   let selectedMetal = null;
   const metalBackdrop = document.getElementById('metalBackdrop');
@@ -1597,7 +1797,7 @@
     const d = DENOMS.find(x => x.id === id);
     renderTotals();
     renderTabs();
-    addLogEntry(d.label + ' ' + t(d.tagKey), dir);
+    addLogEntry(d.label + ' ' + t(d.tagKey), dir, { id: id, delta: dir });
   }
 
   document.body.addEventListener('click', (e) => {
@@ -1618,7 +1818,7 @@
       renderTabs();
       saveState();
       if (newVal !== prevVal){
-        addLogEntry(tf('log_set_to', { label: d.label + ' ' + t(d.tagKey), value: newVal }), 0);
+        addLogEntry(tf('log_set_to', { label: d.label + ' ' + t(d.tagKey), value: newVal }), 0, { id: d.id, delta: newVal - prevVal });
       }
     });
     el.addEventListener('keydown', (e) => {
@@ -2022,6 +2222,13 @@
   });
 
   load();
+
+  const PRICE_TICK_MS = 60000;
+  setInterval(() => {
+    if (document.hidden) return;
+    fetchPrices(true);
+    fetchMetalPrices(true);
+  }, PRICE_TICK_MS);
 
   if ('serviceWorker' in navigator){
     window.addEventListener('load', () => {
