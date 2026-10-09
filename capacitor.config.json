@@ -1,0 +1,9 @@
+{
+  "appId": "com.mischief503.stashly",
+  "appName": "Stashly",
+  "webDir": "www",
+  "backgroundColor": "#F7F5F1",
+  "plugins": {
+    "SystemBars": { "insetsHandling": "native" }
+  }
+}
