@@ -357,12 +357,16 @@
     background:#FFFFFF; border:1px solid var(--border); border-radius:20px; padding:22px;
     width:min(320px,100%); text-align:center; box-shadow:0 20px 50px rgba(40,30,70,.18);
   }
-  .modal p{ font-size:14px; color:var(--ink); margin:0 0 16px; line-height:1.5; }
+  .modal p{ font-size:14px; color:#2B2C33; margin:0 0 16px; line-height:1.5; }
   .modal input{
     width:100%; background:var(--surface); border:1px solid var(--border-hi); border-radius:11px;
-    padding:11px 12px; color:var(--ink); font-size:14px; font-family:inherit; margin-bottom:16px; outline:none;
+    padding:11px 12px; color:#1F2030; font-size:14px; font-family:inherit; margin-bottom:16px; outline:none;
   }
   .modal input:focus{ border-color:var(--grad-b); }
+  .modal input{ background:#F3F3F7; border-color:rgba(20,20,30,0.18); color:#1F2030; -webkit-text-fill-color:#1F2030; caret-color:#1F2030; color-scheme:light; }
+  .modal input::placeholder{ color:#80829A; opacity:1; -webkit-text-fill-color:#80829A; }
+  .modal .modal-cancel{ background:#EEEEF3; color:#2B2C33; border:1px solid rgba(20,20,30,0.12); }
+  .modal .tip-hint{ margin:-4px 0 10px; }
   .modal-actions{ display:flex; gap:10px; }
   .modal-actions button{
     flex:1; padding:11px 0; border-radius:12px; border:none; font-weight:700; font-size:13.5px; cursor:pointer; font-family:inherit;
@@ -404,8 +408,9 @@
   .tip-chip.on{ background:rgba(var(--grad-b-rgb),0.16); border-color:var(--grad-b); color:var(--ink); }
   .tip-chip.new{ border-style:dashed; }
   .tip-form{ display:grid; grid-template-columns:1fr; gap:8px; }
-  .tip-form input{ width:100%; padding:12px 14px; border-radius:12px; border:1px solid var(--border-hi); background:var(--surface); color:var(--ink); font-family:inherit; font-size:15px; box-sizing:border-box; }
+  .tip-form input{ width:100%; padding:12px 14px; border-radius:12px; border:1px solid rgba(20,20,30,0.18); background:#F3F3F7; color:#1F2030; -webkit-text-fill-color:#1F2030; caret-color:#1F2030; color-scheme:light; font-family:inherit; font-size:15px; box-sizing:border-box; }
   .tip-add-btn{ padding:13px 0; border:none; border-radius:12px; font-family:inherit; font-size:14px; font-weight:800; color:#0A0B0F; cursor:pointer; background:linear-gradient(135deg,var(--grad-a),var(--grad-b)); }
+  .tip-form input::placeholder{ color:#80829A; opacity:1; -webkit-text-fill-color:#80829A; }
   .tip-hint{ font-size:11.5px; color:var(--danger); min-height:14px; }
   .tip-entry{ display:flex; align-items:center; gap:10px; padding:10px 0; border-top:1px solid var(--border); }
   .tip-entry .main{ flex:1; min-width:0; }
